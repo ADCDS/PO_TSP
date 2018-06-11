@@ -20,27 +20,28 @@
 
     \subsection{Variáveis de decisão}
     \begin{enumerate}
-        \item $E_i_j \in \{0, 1\}$, representando se a aresta do nó $i$ ao nó $j$ está ativada.
+        \item $E_i_j \in \{0, 1\}$, representando se a aresta do nó $i$ ao nó $j$ está ativa ou não.
     \end{enumerate}
     \subsection{Variáveis auxiliares}
     \begin{enumerate}
         \item $d_i_j \in {\rm I\!R}$, representando a distância do nó $i$ ao nó $j$.
+        \item $k \in {\rm I\!N}$, o número de vertices no grafo.
     \end{enumerate}
 
 
     \subsection{Restrições}
     \subsubsection{Restrição de Linhas}
-    Só se deve partir uma aresta de cada nó, dessa forma a utilizo a equação (1) para determinar essa restrição.
+    Deve-se partir apenas uma aresta de cada nó, dessa forma a utilizo a equação (1) para determinar essa restrição.
     \begin{equation}
         \sum_{j = 0}^{k} E_i_j = 1 \quad
-        \forall i=1..n
+        \forall i=1..k
     \end{equation}
 
     \subsubsection{Restrição de Colunas}
     Cada nó deve receber apenas uma aresta, a equação (2) define essa restrição.
     \begin{equation}
         \sum_{i = 0}^{k} E_i_j = 1 \quad
-        \forall j=1..n
+        \forall j=1..k
     \end{equation}
 
     \subsubsection{Restrição de loops}
