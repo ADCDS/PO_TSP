@@ -1,8 +1,14 @@
+"""
+    This is an implementation of a cplex model that solves the Traveling Salesman Problem
+    It does not implement LazyConstraintCallback!
+
+"""
+
 from docplex.mp.model import Model
 import numpy as np
-import sys
 import utils
-import matplotlib.pyplot as plt
+import sys
+
 
 def distance(X, Y):
     a = np.array((X['x'], X['y'], 1))
@@ -12,8 +18,9 @@ def distance(X, Y):
 
 
 mdl = Model()
-# mdl.parameters.mip.display.set(5)
-# mdl.set_log_output(sys.stdout)
+mdl.parameters.mip.display.set(5)
+mdl.set_log_output(sys.stdout)
+# mdl.parameters.threads.set(16)
 
 data = utils.read_instances()
 row_count = data.shape[0]
@@ -52,30 +59,28 @@ while True:
 
     # mdl.print_solution()
     # utils.draw_graph(data, edges)
-    loop = utils.find_loops(edges)
 
-    if len(edges) != len(loop):
-        # print("Inner loop found: " + str(loop))
-        expr = 0
-        for i, e in enumerate(loop):
-            if i < (len(loop) - 1):
-                expr += edges[e][loop[i + 1]]
-        expr += edges[e][loop[0]]
-        mdl.add(expr <= len(loop)-1)
+    # Necessary due to utils.find_loops
+    float_edges = [[None for j in range(row_count)] for i in range(row_count)]
+    for i in range(row_count):
+        for j in range(row_count):
+            float_edges[i][j] = edges[i][j].solution_value
+
+    # Find loops inside solution
+    loops = utils.find_loops(float_edges)
+    if len(loops) > 1:
+
+        # Foreach loop found, add a restriction to eliminate it
+        for j in range(len(loops)):
+            loop = loops[j]
+            expr = 0
+            for i, e in enumerate(loop):
+                if i < (len(loop) - 1):
+                    expr += edges[e][loop[i + 1]]
+                expr += edges[e][loop[0]]
+            mdl.add(expr <= len(loop) - 1)
     else:
         break
 
-    # mdl.prettyprint()
-
-    """
-    for i in range(0, len(X)):
-        print(slv[X[i]], end=" ")
-    print('\n', end="")
-
-    for i in range(0, len(usage)):
-        for j in range(0, len(usage[i])):
-            print(slv[usage[i][j]], end=" ")
-        print('\n')
-    """
-
+# Draw the graph
 utils.draw_graph(data, edges)

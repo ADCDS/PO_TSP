@@ -1,0 +1,68 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+
+\title{Pesquisa Operacional - Relatório 10}
+\author{Adriel Cardoso dos Santos}
+\date{Maio 2018}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage[]{algorithm2e}
+\usepackage{graphicx}
+\usepackage[portuges]{babel}
+
+
+\begin{document}
+
+    \maketitle
+
+    \section{Descrição}
+
+    Esse relatório tem como objetivo comparar os dois modelos que solucionam o problema do caxeiro viajante, um utiliza LazyConstraintCallback
+    para adicionar as restrições de sub-ciclos (Modelo LCC), o outro não utiliza o LazyConstraintCallback (Modelo s/ LCC), e adiciona as restrições iterativamente.
+
+    \section{Resultados}
+
+    Foi possível solucionar na otimalidade as instâncias de 10, 25, 50, 75 com tempo viável, as demais demoraram muito.
+
+    \subsubsection{Tempo de execução}
+    Essa tabela apresenta o tempo de execução total de cada script para cada instância em milisegundos.
+    \begin{center}
+        \begin{tabular}{ | l | l | l | l | l | p{5cm} |}
+            \hline
+            & 10.csv & 25.csv & 50.csv & 75.csv \\ \hline
+            Modelo s/ LCC & 961 ms & 2037 ms & 5975 ms & 31503 ms\\
+            Modelo LCC & 897 ms & 4503 ms & 120754 ms & 229189 ms\\
+            \hline
+        \end{tabular}
+    \end{center}
+
+    \subsubsection{Ticks}
+
+    \begin{center}
+        \begin{tabular}{ | l | l | l | l | l | p{5cm} |}
+            \hline
+            & 10.csv & 25.csv & 50.csv & 75.csv \\ \hline
+            Modelo s/ LCC & 2.64 & 48.98 & 166.93 & 778.82\\
+            Modelo LCC & 8.42 & 203.38 & 58388.43 & 75379.51\\
+            \hline
+        \end{tabular}
+    \end{center}
+
+
+    \section{Conclusão}
+    Foi possível observar que o modelo que utiliza o LazyConstraintCallback teve um desempenho muito pior que o modelo iterativo,
+    mesmo levando em consideração que o número de ticks para o modelo sem LCC se refere apenas a ultima iteração em que o método $solve()$
+    foi chamado, a tabela de tempo de execução nos mostra que o modelo sem LCC foi extremamente mais rápido.
+    Acredito que o motivo disso se deve ao fato da implementação do LazyConstraintCallback na API Python do CPLEX ser limitada,
+    nessa implementação, toda vez que o callback é chamado, não posso simplesmente adicionar uma restrição utilizando uma expressão
+    linear, como é feito no modelo iterativo, preciso tratar os dados, encapsulá-los numa estrutura chamada SparsePair com os nomes
+    das variáveis (string) e os respetivos coeficientes, depois preciso adicionar a restrição, chamando a função LazyConstraintCallback.add()
+    essa função recebe o SparsePair, uma string que representa um operador de igualdade/desigualdade ("G" indica "$>$", "LE" indica "$<=$", etc.)
+    e um float que representa a parte que está a direta da restrição.
+    Acredito que toda essa operação de adicionar restrições utilizando nome das variáveis em string e lista de coeficiêntes adiciona um overhead
+    no callback, fazendo com que todo o tempo de execução do script fique mais lento.
+    É provável também que eu tenha cometido um erro na implementação, vale ressaltar que a documentação da API Python do CPLEX é extramente confusa,
+    com pouca informação sobre as funções/parâmetros de funções, e, praticamente sem exemplos práticos.
+
+
+\end{document}

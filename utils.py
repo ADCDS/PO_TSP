@@ -4,11 +4,10 @@ import matplotlib.pyplot as plt
 
 
 def read_instances():
-    return pd.read_csv('instances/25.csv', delimiter=',')
+    return pd.read_csv('instances/75.csv', delimiter=',')
 
 
 def draw_graph(graph, edges):
-
     # extract nodes from graph
     nodes = range(graph.shape[0])
 
@@ -22,6 +21,7 @@ def draw_graph(graph, edges):
     # add edges
     for i in range(len(edges)):
         for j in range(len(edges[i])):
+            # if edges[i][j].solution_value != 0:
             if edges[i][j].solution_value != 0:
                 G.add_edge(i, j)
 
@@ -34,17 +34,24 @@ def draw_graph(graph, edges):
     plt.show()
 
 
-
-
 def find_loops(edges):
-    visited_nodes = list()
-    current_node = 0
+    visited_nodes = list(list())
+    unvisited_nodes = list(range(len(edges)))
 
-    while current_node not in visited_nodes:
-        visited_nodes.append(current_node)
-        for j in range(len(edges)):
-            if edges[current_node][j].solution_value == 1:
-                current_node = j
-                break
+    i = 0
+    while len(unvisited_nodes) > 0:
+        current_node = unvisited_nodes[0]
+        visited_nodes.append(list())
+
+        while current_node not in visited_nodes[i]:
+            unvisited_nodes.remove(current_node)
+            visited_nodes[i].append(current_node)
+
+            for j in range(len(edges)):
+                # if edges[current_node][j].solution_value == 1:
+                if edges[current_node][j] != 0:
+                    current_node = j
+                    break
+        i += 1
 
     return visited_nodes
