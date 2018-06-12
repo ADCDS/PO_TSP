@@ -10,33 +10,40 @@ import utils
 import sys
 
 from cplex.callbacks import LazyConstraintCallback
-from cplex import SparsePair
 
 
 class Callback(LazyConstraintCallback):
     def __call__(self):
-        # Necessary due to utils.find_loops
-        float_edges = list(zip(*[iter(self.get_values())]*row_count))
 
-        # Find loops inside the solution
-        loops = utils.find_loops(float_edges)
+        if not self.is_unbounded_node():
+            # Find loops inside the solution
+            loops = utils.find_loops_linear(self.get_values(), self.row_count)
 
-        if len(loops) > 1:
-            # Foreach loop found, add a restriction to eliminate it
-            for j in range(len(loops)):
-                loop = loops[j]
-                expr = [None] * len(loop)
+            if len(loops) > 1:
+                # Foreach loop found, add a restriction to eliminate it
+                for j in range(len(loops)):
+                    loop = loops[j]
 
-                # We need the variables names (?)
-                for i, e in enumerate(loop):
-                    if i < (len(loop) - 1):
-                        expr[i] = edges[e][loop[i + 1]].name
-                expr[i] = edges[e][loop[0]].name
+                    # Expressions for the loop and reverse loop
+                    expr = [None] * len(loop)
+                    expr_rev = [None] * len(loop)
 
-                # I don't know why the fuck this have to be this way, but this add the constraint
-                sp = SparsePair(ind=expr, val=[1] * len(expr))
-                self.add(constraint=sp, sense="LE", rhs=len(loop) - 1)
+                    # We need the variables names (?)
+                    for i, e in enumerate(loop):
+                        if i < (len(loop) - 1):
+                            expr[i] = 'E_' + str(e) + '_' + str(loop[i + 1])
+                            expr_rev[i] = 'E_' + str(loop[i + 1]) + '_' + str(e)
+                    expr[i] = 'E_' + str(e) + '_' + str(loop[0])
+                    expr_rev[i] = 'E_' + str(loop[0]) + '_' + str(e)
 
+                    # I don't know why the fuck this have to be this way, but this add the constraint
+                    # sp = SparsePair(ind=expr, val=[1] * len(expr))
+                    # sp_rev = SparsePair(ind=expr_rev, val=)
+
+                    self.add(constraint=[expr, [1] * len(loop)], sense="LE", rhs=len(loop) - 1)
+                    self.add(constraint=[expr_rev, [1] * len(loop)], sense="LE", rhs=len(loop) - 1)
+        else:
+            print("Unbounded node")
 
 def distance(X, Y):
     a = np.array((X['x'], X['y'], 1))
@@ -87,7 +94,6 @@ cb = mdl.register_callback(Callback)
 
 # Add attributes to Callback object, so i can access them inside de Callback
 cb.row_count = row_count
-cb.data = data
 
 slv = mdl.solve()
 
