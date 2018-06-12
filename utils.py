@@ -33,7 +33,9 @@ def draw_graph(graph, edges):
     # show graph
     plt.show()
 
-
+"""
+    Given an 2D binary matrix representing the graph edges, find all subtours and return them as a list of lists 
+"""
 def find_loops(edges):
     visited_nodes = list(list())
     unvisited_nodes = list(range(len(edges)))
@@ -50,6 +52,33 @@ def find_loops(edges):
             for j in range(len(edges)):
                 # if edges[current_node][j].solution_value == 1:
                 if edges[current_node][j] != 0:
+                    current_node = j
+                    break
+        i += 1
+
+    return visited_nodes
+
+
+"""
+    Given a linearized 2D binary matrix representing the graph edges, find all subtours and return them as a list of lists
+    This is faster for the LazyConstraintCallback implementation due to the fact that self.get_values() returns the values linearized
+"""
+def find_loops_linear(edges, row_count):
+    visited_nodes = list(list())
+    unvisited_nodes = list(range(row_count))
+
+    i = 0
+    while len(unvisited_nodes) > 0:
+        current_node = unvisited_nodes[0]
+        visited_nodes.append(list())
+
+        while current_node not in visited_nodes[i]:
+            unvisited_nodes.remove(current_node)
+            visited_nodes[i].append(current_node)
+
+            for j in range(row_count):
+                # if edges[current_node][j].solution_value == 1:
+                if edges[current_node * row_count + j] != 0:
                     current_node = j
                     break
         i += 1
