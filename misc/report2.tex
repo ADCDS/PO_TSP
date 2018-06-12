@@ -17,15 +17,15 @@
 
     \section{Descrição}
 
-    Esse relatório tem como objetivo comparar os dois modelos que solucionam o problema do caxeiro viajante, um utiliza LazyConstraintCallback
-    para adicionar as restrições de sub-ciclos (Modelo LCC), o outro não utiliza o LazyConstraintCallback (Modelo s/ LCC), e adiciona as restrições iterativamente.
+    Esse relatório tem como objetivo comparar os dois modelos que solucionam o problema do cacheiro viajante, um utiliza LazyConstraintCallback
+    para adicionar as restrições de subciclos (Modelo LCC), o outro não utiliza o LazyConstraintCallback (Modelo s/ LCC), e adiciona as restrições iterativamente.
 
     \section{Resultados}
 
     Foi possível solucionar na otimalidade as instâncias de 10, 25, 50, 75 com tempo viável, as demais demoraram muito.
 
     \subsubsection{Tempo de execução}
-    Essa tabela apresenta o tempo de execução total de cada script para cada instância em milisegundos.
+    Essa tabela apresenta o tempo de execução total de cada script para cada instância em milissegundos.
     \begin{center}
         \begin{tabular}{ | l | l | l | l | l | p{5cm} |}
             \hline
@@ -59,7 +59,7 @@
     das variáveis (string) e os respetivos coeficientes, depois preciso adicionar a restrição, chamando a função LazyConstraintCallback.add()
     essa função recebe o SparsePair, uma string que representa um operador de igualdade/desigualdade ("G" indica "$>$", "LE" indica "$<=$", etc.)
     e um float que representa a parte que está a direta da restrição.
-    Acredito que toda essa operação de adicionar restrições utilizando nome das variáveis em string e lista de coeficiêntes adiciona um overhead
+    Acredito que toda essa operação de adicionar restrições utilizando nome das variáveis em string e lista de coeficientes adiciona um overhead
     no callback, fazendo com que todo o tempo de execução do script fique mais lento.
     É provável também que eu tenha cometido um erro na implementação, vale ressaltar que a documentação da API Python do CPLEX é extramente confusa,
     com pouca informação sobre as funções/parâmetros de funções, e, praticamente sem exemplos práticos.
