@@ -74,10 +74,13 @@ while True:
         for j in range(len(loops)):
             loop = loops[j]
             expr = 0
+            expr_rev = 0
             for i, e in enumerate(loop):
                 if i < (len(loop) - 1):
                     expr += edges[e][loop[i + 1]]
+                    expr_rev += edges[loop[i + 1]][e]
                 expr += edges[e][loop[0]]
+                expr_rev += edges[loop[0]][e]
             mdl.add(expr <= len(loop) - 1)
     else:
         break
