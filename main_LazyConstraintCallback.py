@@ -14,7 +14,6 @@ from cplex.callbacks import LazyConstraintCallback
 
 class Callback(LazyConstraintCallback):
     def __call__(self):
-
         # Find loops inside the solution
         loops = utils.find_loops_linear(self.get_values(), self.row_count)
 
@@ -61,10 +60,11 @@ mdl.set_log_output(sys.stdout)
     
     Check:
     https://www.ibm.com/support/knowledgecenter/en/SSSA5P_12.6.3/ilog.odms.cplex.help/CPLEX/UsrMan/topics/cont_optim/barrier/22_preprocess.html
-    # https://www.ibm.com/support/knowledgecenter/en/SSSA5P_12.4.0/ilog.odms.cplex.help/CPLEX/User_manual/topics/uss_solveMIP_48.html    
+    https://www.ibm.com/support/knowledgecenter/en/SSSA5P_12.4.0/ilog.odms.cplex.help/CPLEX/User_manual/topics/uss_solveMIP_48.html
+    
+    ps: still need to make this shit faster somehow
 """
 mdl.parameters.preprocessing.reduce.set(0)
-
 
 # mdl.parameters.advance.set(0)
 
