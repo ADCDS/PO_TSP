@@ -15,35 +15,33 @@ from cplex.callbacks import LazyConstraintCallback
 class Callback(LazyConstraintCallback):
     def __call__(self):
 
-        if not self.is_unbounded_node():
-            # Find loops inside the solution
-            loops = utils.find_loops_linear(self.get_values(), self.row_count)
+        # Find loops inside the solution
+        loops = utils.find_loops_linear(self.get_values(), self.row_count)
 
-            if len(loops) > 1:
-                # Foreach loop found, add a restriction to eliminate it
-                for j in range(len(loops)):
-                    loop = loops[j]
+        if len(loops) > 1:
+            # Foreach loop found, add a restriction to eliminate it
+            for j in range(len(loops)):
+                loop = loops[j]
 
-                    # Expressions for the loop and reverse loop
-                    expr = [None] * len(loop)
-                    expr_rev = [None] * len(loop)
+                # Expressions for the loop and reverse loop
+                expr = [None] * len(loop)
+                expr_rev = [None] * len(loop)
 
-                    # We need the variables names (?)
-                    for i, e in enumerate(loop):
-                        if i < (len(loop) - 1):
-                            expr[i] = 'E_' + str(e) + '_' + str(loop[i + 1])
-                            expr_rev[i] = 'E_' + str(loop[i + 1]) + '_' + str(e)
-                    expr[i] = 'E_' + str(e) + '_' + str(loop[0])
-                    expr_rev[i] = 'E_' + str(loop[0]) + '_' + str(e)
+                # We need the variables names (?)
+                for i, e in enumerate(loop):
+                    if i < (len(loop) - 1):
+                        expr[i] = 'E_' + str(e) + '_' + str(loop[i + 1])
+                        expr_rev[i] = 'E_' + str(loop[i + 1]) + '_' + str(e)
+                expr[i] = 'E_' + str(e) + '_' + str(loop[0])
+                expr_rev[i] = 'E_' + str(loop[0]) + '_' + str(e)
 
-                    # I don't know why the fuck this have to be this way, but this add the constraint
-                    # sp = SparsePair(ind=expr, val=[1] * len(expr))
-                    # sp_rev = SparsePair(ind=expr_rev, val=)
+                # I don't know why the fuck this have to be this way, but this add the constraint
+                # sp = SparsePair(ind=expr, val=[1] * len(expr))
+                # sp_rev = SparsePair(ind=expr_rev, val=)
 
-                    self.add(constraint=[expr, [1] * len(loop)], sense="LE", rhs=len(loop) - 1)
-                    self.add(constraint=[expr_rev, [1] * len(loop)], sense="LE", rhs=len(loop) - 1)
-        else:
-            print("Unbounded node")
+                self.add(constraint=[expr, [1] * len(loop)], sense="L", rhs=len(loop) - 1)
+                self.add(constraint=[expr_rev, [1] * len(loop)], sense="L", rhs=len(loop) - 1)
+
 
 def distance(X, Y):
     a = np.array((X['x'], X['y'], 1))
@@ -56,6 +54,19 @@ mdl = Model()
 mdl.parameters.mip.display.set(5)
 mdl.set_log_output(sys.stdout)
 # mdl.parameters.threads.set(16)
+
+"""
+    If I don't add this line, the use of LazyConstraintCallback becomes slower 
+    Thanks to https://github.com/malgar for finding this out
+    
+    Check:
+    https://www.ibm.com/support/knowledgecenter/en/SSSA5P_12.6.3/ilog.odms.cplex.help/CPLEX/UsrMan/topics/cont_optim/barrier/22_preprocess.html
+    # https://www.ibm.com/support/knowledgecenter/en/SSSA5P_12.4.0/ilog.odms.cplex.help/CPLEX/User_manual/topics/uss_solveMIP_48.html    
+"""
+mdl.parameters.preprocessing.reduce.set(0)
+
+
+# mdl.parameters.advance.set(0)
 
 data = utils.read_instances()
 row_count = data.shape[0]
