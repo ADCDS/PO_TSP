@@ -61,8 +61,8 @@
     e um float que representa a parte que está a direta da restrição.
     Acredito que toda essa operação de adicionar restrições utilizando nome das variáveis em string e lista de coeficientes adiciona um overhead
     no callback, fazendo com que todo o tempo de execução do script fique mais lento.
-    É provável também que eu tenha cometido um erro na implementação, vale ressaltar que a documentação da API Python do CPLEX é extramente confusa,
-    com pouca informação sobre as funções/parâmetros de funções, e, praticamente sem exemplos práticos.
+    Pesquisando implemetações similires que implementam o LCC, percebi a utilização do parâmetro  preprocessing reduce igual a zero ($mdl.parameters.preprocessing.reduce.set(0)$), isso consegue deixar 2 vezes mais rápida a execução do modelo com o LCC, porém, ainda não supera o modelo s/ LCC
+    É provável também que eu tenha cometido um erro na implementação.    
 
 
 \end{document}
